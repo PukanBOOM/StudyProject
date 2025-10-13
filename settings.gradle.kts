@@ -10,6 +10,6 @@ plugins {
 
 rootProject.name = "StudyProject"
 
-include("lessons")
-include("my-project-module")
-include("build-plugin")
+includeBuild("lessons")
+includeBuild("my-project-module")
+includeBuild("build-plugin")
