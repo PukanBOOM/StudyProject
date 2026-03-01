@@ -1,6 +1,7 @@
 package ru.levin.apps.comparator.common
 
 import ru.levin.apps.comparator.common.models.*
+import ru.levin.apps.comparator.common.repo.IProductRepository
 import ru.levin.apps.comparator.common.stubs.ComparatorStubs
 import java.time.Instant
 
@@ -9,21 +10,21 @@ data class ComparatorContext(
     var state: ComparatorState = ComparatorState.NONE,
     var errors: MutableList<ComparatorError> = mutableListOf(),
 
+    var corSettings: ComparatorCorSettings = ComparatorCorSettings(),
     var workMode: ComparatorWorkMode = ComparatorWorkMode.PROD,
     var stubCase: ComparatorStubs = ComparatorStubs.NONE,
+
+    var productRepo: IProductRepository = IProductRepository.NONE,
 
     var requestId: ComparatorRequestId = ComparatorRequestId.NONE,
     var timeStart: Instant = Instant.MIN,
 
-    // Входные данные запроса
     var productRequest: ComparatorProduct = ComparatorProduct(),
     var productFilterRequest: ComparatorProductFilter = ComparatorProductFilter(),
 
-    // Данные после валидации (санитизированные копии)
     var productValidating: ComparatorProduct = ComparatorProduct(),
     var productFilterValidating: ComparatorProductFilter = ComparatorProductFilter(),
 
-    // Результат обработки
     var productResponse: ComparatorProduct = ComparatorProduct(),
     var productsResponse: MutableList<ComparatorProduct> = mutableListOf(),
 )

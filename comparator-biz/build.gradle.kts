@@ -9,6 +9,8 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    testImplementation(project(":comparator-repo-tests"))
+    testImplementation(project(":comparator-repo-inmemory"))
 }
 
 kotlin {

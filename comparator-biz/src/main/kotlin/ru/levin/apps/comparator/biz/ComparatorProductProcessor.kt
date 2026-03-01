@@ -1,19 +1,27 @@
 package ru.levin.apps.comparator.biz
 
 import ru.levin.apps.comparator.biz.general.*
+import ru.levin.apps.comparator.biz.repo.*
 import ru.levin.apps.comparator.biz.stubs.*
 import ru.levin.apps.comparator.biz.validation.*
 import ru.levin.apps.comparator.common.ComparatorContext
+import ru.levin.apps.comparator.common.ComparatorCorSettings
 import ru.levin.apps.comparator.common.models.ComparatorCommand
 import ru.levin.apps.comparator.cor.rootChain
 
-class ComparatorProductProcessor {
+class ComparatorProductProcessor(
+    private val corSettings: ComparatorCorSettings = ComparatorCorSettings(),
+) {
 
-    suspend fun exec(ctx: ComparatorContext) = chain.exec(ctx)
+    suspend fun exec(ctx: ComparatorContext) {
+        ctx.corSettings = corSettings
+        chain.exec(ctx)
+    }
 
     companion object {
         private val chain = rootChain<ComparatorContext> {
             initStatus("Initialize status")
+            initRepo("Initialize repository")
 
             // ===== CREATE =====
             operation("Create product", ComparatorCommand.CREATE) {
@@ -29,6 +37,9 @@ class ComparatorProductProcessor {
                     validateDescriptionNotEmpty("Validate description is not empty")
                     finishValidation("Finish create validation")
                 }
+                repoOps("Create in repository") {
+                    repoCreate("Save to database")
+                }
             }
 
             // ===== READ =====
@@ -43,6 +54,9 @@ class ComparatorProductProcessor {
                     validateIdNotEmpty("Validate id is not empty")
                     validateIdProperFormat("Validate id format")
                     finishValidation("Finish read validation")
+                }
+                repoOps("Read from repository") {
+                    repoRead("Read from database")
                 }
             }
 
@@ -65,6 +79,9 @@ class ComparatorProductProcessor {
                     validateLockProperFormat("Validate lock format")
                     finishValidation("Finish update validation")
                 }
+                repoOps("Update in repository") {
+                    repoUpdate("Update in database")
+                }
             }
 
             // ===== DELETE =====
@@ -82,6 +99,9 @@ class ComparatorProductProcessor {
                     validateLockProperFormat("Validate lock format")
                     finishValidation("Finish delete validation")
                 }
+                repoOps("Delete from repository") {
+                    repoDelete("Delete from database")
+                }
             }
 
             // ===== SEARCH =====
@@ -94,6 +114,9 @@ class ComparatorProductProcessor {
                     trimFieldsSearch("Trim search string")
                     validateSearchStringLength("Validate search string length")
                     finishValidation("Finish search validation")
+                }
+                repoOps("Search in repository") {
+                    repoSearch("Search in database")
                 }
             }
 
