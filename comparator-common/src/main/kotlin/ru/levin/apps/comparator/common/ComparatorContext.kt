@@ -19,6 +19,10 @@ data class ComparatorContext(
     var productRequest: ComparatorProduct = ComparatorProduct(),
     var productFilterRequest: ComparatorProductFilter = ComparatorProductFilter(),
 
+    // Данные после валидации (санитизированные копии)
+    var productValidating: ComparatorProduct = ComparatorProduct(),
+    var productFilterValidating: ComparatorProductFilter = ComparatorProductFilter(),
+
     // Результат обработки
     var productResponse: ComparatorProduct = ComparatorProduct(),
     var productsResponse: MutableList<ComparatorProduct> = mutableListOf(),

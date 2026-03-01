@@ -196,7 +196,15 @@ class WebSocketTest {
                 ProductCreateRequest(
                     requestType = "productCreate",
                     requestId = "ws-multi-1",
-                    product = ProductCreateObject(name = "Test", category = ProductCategory.OTHER),
+                    product = ProductCreateObject(
+                        name = "Test",
+                        description = "Test description",
+                        category = ProductCategory.OTHER,
+                    ),
+                    debug = ProductDebug(
+                        mode = RequestDebugMode.STUB,
+                        stub = RequestDebugStubs.SUCCESS,
+                    ),
                 )
             )))
             val frame1 = incoming.receive() as Frame.Text
@@ -210,6 +218,10 @@ class WebSocketTest {
                     requestType = "productRead",
                     requestId = "ws-multi-2",
                     product = ProductReadObject(id = "prod-666"),
+                    debug = ProductDebug(
+                        mode = RequestDebugMode.STUB,
+                        stub = RequestDebugStubs.SUCCESS,
+                    ),
                 )
             )))
             val frame2 = incoming.receive() as Frame.Text
