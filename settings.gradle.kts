@@ -3,6 +3,10 @@ pluginManagement{
     plugins{
         kotlin("jvm") version kotlinVersion
     }
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
 }
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
@@ -10,6 +14,7 @@ plugins {
 
 rootProject.name = "StudyProject"
 
-includeBuild("lessons")
-includeBuild("my-project-module")
-includeBuild("build-plugin")
+include("m1l1-first")
+include(":comparator-api-v1")
+include(":comparator-common")
+include(":comparator-mappers-v1")
