@@ -2,15 +2,29 @@ package ru.levin.apps.comparator.biz.validation
 
 import kotlinx.coroutines.runBlocking
 import ru.levin.apps.comparator.biz.ComparatorProductProcessor
+import ru.levin.apps.comparator.common.ComparatorCorSettings
 import ru.levin.apps.comparator.common.ComparatorContext
 import ru.levin.apps.comparator.common.models.*
+import ru.levin.apps.comparator.repo.inmemory.ProductRepoInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BizValidationUpdateTest {
 
-    private val processor = ComparatorProductProcessor()
+    private val initProduct = ComparatorProduct(
+        id = ComparatorProductId("valid-id-123"),
+        name = "Original",
+        description = "Original desc",
+        category = ComparatorProductCategory.ELECTRONICS,
+        lock = ComparatorProductLock("valid-lock-123"),
+    )
+
+    private val processor = ComparatorProductProcessor(
+        corSettings = ComparatorCorSettings(
+            repoTest = ProductRepoInMemory(initObjects = listOf(initProduct))
+        )
+    )
 
     private fun baseContext(
         id: String = "valid-id-123",

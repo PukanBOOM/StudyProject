@@ -2,15 +2,19 @@ package ru.levin.apps.comparator.biz.validation
 
 import kotlinx.coroutines.runBlocking
 import ru.levin.apps.comparator.biz.ComparatorProductProcessor
+import ru.levin.apps.comparator.common.ComparatorCorSettings
 import ru.levin.apps.comparator.common.ComparatorContext
 import ru.levin.apps.comparator.common.models.*
+import ru.levin.apps.comparator.repo.inmemory.ProductRepoInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BizValidationSearchTest {
 
-    private val processor = ComparatorProductProcessor()
+    private val processor = ComparatorProductProcessor(
+        corSettings = ComparatorCorSettings(repoTest = ProductRepoInMemory())
+    )
 
     private fun baseContext(searchString: String = "iPhone search") = ComparatorContext(
         command = ComparatorCommand.SEARCH,
@@ -32,7 +36,6 @@ class BizValidationSearchTest {
 
     @Test
     fun `empty search string passes validation`() = runBlocking {
-        // Пустая строка допустима (поиск без фильтра)
         val ctx = baseContext(searchString = "")
         processor.exec(ctx)
 

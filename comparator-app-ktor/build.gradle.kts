@@ -14,6 +14,8 @@ dependencies {
     implementation(project(":comparator-common"))
     implementation(project(":comparator-mappers-v1"))
     implementation(project(":comparator-biz"))
+    implementation(project(":comparator-repo-inmemory"))
+    implementation(project(":comparator-repo-postgres"))
 
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")

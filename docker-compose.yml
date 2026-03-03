@@ -1,10 +1,34 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: comparator-postgres
+    environment:
+      POSTGRES_DB: comparator
+      POSTGRES_USER: comparator
+      POSTGRES_PASSWORD: comparator
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U comparator -d comparator"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   comparator-ktor:
     build:
       context: .
       dockerfile: comparator-app-ktor/Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/comparator
+      DB_USER: comparator
+      DB_PASSWORD: comparator
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   comparator-websocket:
@@ -13,4 +37,14 @@ services:
       dockerfile: comparator-app-websocket/Dockerfile
     ports:
       - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/comparator
+      DB_USER: comparator
+      DB_PASSWORD: comparator
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  pg_data:
