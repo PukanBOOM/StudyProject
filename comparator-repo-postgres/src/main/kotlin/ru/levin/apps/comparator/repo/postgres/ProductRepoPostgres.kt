@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,8 +19,11 @@ class ProductRepoPostgres(
     initObjects: List<ComparatorProduct> = emptyList(),
 ) : IProductRepository {
 
-    private val db: Database = Database.connect(
-        HikariDataSource(HikariConfig().apply {
+    private val db: Database
+
+    init {
+        // 1. HikariCP DataSource (нужен и для Flyway, и для Exposed)
+        val hikariDs = HikariDataSource(HikariConfig().apply {
             jdbcUrl = url
             username = user
             this.password = password
@@ -29,15 +33,21 @@ class ProductRepoPostgres(
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
             validate()
         })
-    )
 
-    init {
-        transaction(db) {
-            SchemaUtils.create(ProductsTable, OffersTable)
-        }
-        initObjects.forEach { product ->
+        // 2. Flyway миграции — передаём DataSource напрямую
+        Flyway.configure()
+            .dataSource(hikariDs)
+            .locations("classpath:db/migration")
+            .load()
+            .migrate()
+
+        // 3. Exposed
+        db = Database.connect(hikariDs)
+
+        // 4. Инициализация тестовых данных
+        if (initObjects.isNotEmpty()) {
             transaction(db) {
-                insertProduct(product)
+                initObjects.forEach { product -> insertProduct(product) }
             }
         }
     }
@@ -132,15 +142,12 @@ class ProductRepoPostgres(
             }
 
             val products = query.map { row ->
-                val id = row[ProductsTable.id]
-                fetchProduct(id)!!
+                fetchProduct(row[ProductsTable.id])!!
             }
 
             DbProductsResponse.success(products)
         }
     }
-
-    // ===== helpers =====
 
     private fun insertProduct(product: ComparatorProduct) {
         ProductsTable.insert {
@@ -192,9 +199,8 @@ class ProductRepoPostgres(
         ComparatorProductCategory.NONE
     }
 
-    private suspend fun <T> dbQuery(block: () -> T): T = withContext(Dispatchers.IO) {
-        transaction(db) { block() }
-    }
+    private suspend fun <T> dbQuery(block: () -> T): T =
+        withContext(Dispatchers.IO) { transaction(db) { block() } }
 
     private suspend fun tryOp(block: suspend () -> DbProductResponse): DbProductResponse = try {
         block()
