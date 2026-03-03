@@ -5,6 +5,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import ru.levin.apps.comparator.biz.ComparatorProductProcessor
 import java.time.Duration
 
 fun main() {
@@ -13,6 +14,8 @@ fun main() {
 }
 
 fun Application.wsModule() {
+    val processor = ComparatorProductProcessor()
+
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -20,6 +23,6 @@ fun Application.wsModule() {
         masking = false
     }
     routing {
-        wsProduct()
+        wsProduct(processor)
     }
 }

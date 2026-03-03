@@ -5,19 +5,17 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import ru.levin.apps.comparator.api.v1.models.*
+import ru.levin.apps.comparator.biz.ComparatorProductProcessor
 import ru.levin.apps.comparator.common.ComparatorContext
-import ru.levin.apps.comparator.common.models.ComparatorState
 import ru.levin.apps.comparator.mappers.v1.*
-import ru.levin.apps.comparator.stubs.ComparatorProductStub
 
-fun Route.v1Product() {
+fun Route.v1Product(processor: ComparatorProductProcessor) {
 
     post("/create") {
         val request = call.receive<ProductCreateRequest>()
         val context = ComparatorContext()
         context.fromTransport(request)
-        context.productResponse = ComparatorProductStub.get()
-        context.state = ComparatorState.FINISHING
+        processor.exec(context)
         call.respond(context.toTransportProductCreate())
     }
 
@@ -25,8 +23,7 @@ fun Route.v1Product() {
         val request = call.receive<ProductReadRequest>()
         val context = ComparatorContext()
         context.fromTransport(request)
-        context.productResponse = ComparatorProductStub.get()
-        context.state = ComparatorState.FINISHING
+        processor.exec(context)
         call.respond(context.toTransportProductRead())
     }
 
@@ -34,8 +31,7 @@ fun Route.v1Product() {
         val request = call.receive<ProductUpdateRequest>()
         val context = ComparatorContext()
         context.fromTransport(request)
-        context.productResponse = ComparatorProductStub.get()
-        context.state = ComparatorState.FINISHING
+        processor.exec(context)
         call.respond(context.toTransportProductUpdate())
     }
 
@@ -43,8 +39,7 @@ fun Route.v1Product() {
         val request = call.receive<ProductDeleteRequest>()
         val context = ComparatorContext()
         context.fromTransport(request)
-        context.productResponse = ComparatorProductStub.get()
-        context.state = ComparatorState.FINISHING
+        processor.exec(context)
         call.respond(context.toTransportProductDelete())
     }
 
@@ -52,11 +47,7 @@ fun Route.v1Product() {
         val request = call.receive<ProductSearchRequest>()
         val context = ComparatorContext()
         context.fromTransport(request)
-        context.productsResponse = ComparatorProductStub.prepareSearchList(
-            filter = context.productFilterRequest.searchString,
-            category = context.productFilterRequest.category,
-        ).toMutableList()
-        context.state = ComparatorState.FINISHING
+        processor.exec(context)
         call.respond(context.toTransportProductSearch())
     }
 }
